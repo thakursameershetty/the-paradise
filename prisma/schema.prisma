@@ -24,3 +24,16 @@ model Participant {
   q4        String
   createdAt DateTime @default(now())
 }
+
+model Post {
+  id             String   @id @default(uuid())
+  authorName     String
+  authorUsername String
+  authorAvatar   String
+  content        String
+  image          String?
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  shares         Int      @default(0)
+  createdAt      DateTime @default(now())
+}

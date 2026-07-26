@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { SocialCard } from '@/components/ui/social-card';
+import { getPosts } from '../actions';
 import styles from './FeedView.module.css';
 import { Facehash } from 'facehash';
 import type { WinnerInfo } from './SpinWheel';
@@ -12,13 +14,17 @@ interface FeedViewProps {
 
 export default function FeedView({ nickname, winner, profileData }: FeedViewProps) {
   const [showProfile, setShowProfile] = useState(false);
-  // Dummy feed data
-  const feedItems = [
-    { id: 1, title: 'Trailer Release', content: 'The highly anticipated trailer drops tomorrow! Get ready for an epic journey.', time: '2h ago' },
-    { id: 2, title: 'Behind the Scenes', content: 'A sneak peek into the making of Jadal Zamana. See how the magic happens.', time: '5h ago' },
-    { id: 3, title: 'Cast Announcement', content: 'New stars joining the Paradise universe. Read the full cast list.', time: '1d ago' },
-    { id: 4, title: 'Welcome to Paradise', content: 'Your journey begins now. Stay tuned for exclusive updates.', time: '2d ago' },
-  ];
+  const [posts, setPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadPosts() {
+      const result = await getPosts();
+      if (result.success && result.posts) {
+        setPosts(result.posts);
+      }
+    }
+    loadPosts();
+  }, []);
 
   return (
     <div className={styles.feedContainer}>
@@ -58,25 +64,38 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
           <div className={styles.pulse} />
         </div>
 
-        <div className={styles.postsList}>
-          {feedItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              className={styles.postCard}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-              style={{
-                borderLeft: `3px solid ${winner.colors[0]}`
-              }}
-            >
-              <div className={styles.postMeta}>
-                <span className={styles.postTime}>{item.time}</span>
-              </div>
-              <h4 className={styles.postTitle}>{item.title}</h4>
-              <p className={styles.postContent}>{item.content}</p>
-            </motion.div>
-          ))}
+        <div className={styles.postsList} style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          {posts.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>No updates yet in Paradise. Stay tuned!</p>
+          ) : (
+            posts.map((post, index) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+              >
+                <SocialCard
+                  themeColor={winner.colors[0]}
+                  author={{
+                    name: post.authorName,
+                    username: post.authorUsername,
+                    avatar: post.authorAvatar,
+                    timeAgo: new Date(post.createdAt).toLocaleDateString(),
+                  }}
+                  content={{
+                    text: post.content,
+                    image: post.image || undefined,
+                  }}
+                  engagement={{
+                    likes: post.likes,
+                    comments: post.comments,
+                    shares: post.shares,
+                  }}
+                />
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
 

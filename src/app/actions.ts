@@ -53,3 +53,15 @@ export async function saveParticipant({
     return { success: false, error: 'Failed to save data. Please try again.' };
   }
 }
+
+export async function getPosts() {
+  try {
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return { success: true, posts };
+  } catch (error: any) {
+    console.error('Error fetching posts:', error);
+    return { success: false, error: error.message };
+  }
+}
