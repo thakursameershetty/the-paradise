@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { Facehash } from 'facehash';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './FacehashSection.module.css';
 import type { WinnerInfo } from './SpinWheel';
 import { saveParticipant } from '@/app/actions';
+import FeedView from './FeedView';
 
 interface FacehashSectionProps {
   winner: WinnerInfo;
@@ -16,12 +17,17 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
   const [nickname, setNickname] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [view, setView] = useState<'form' | 'feed'>('form');
 
   const triggerHaptic = (pattern: number | number[] = 10) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(pattern);
     }
   };
+
+  if (view === 'feed') {
+    return <FeedView nickname={nickname} winner={winner} />;
+  }
 
   return (
     <div
@@ -48,20 +54,19 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
         </p>
       </div>
 
-      <div className={styles.avatarContainer}>
-        <div className={styles.facehashWrapper}>
+      <motion.div layoutId="profile-avatar-container" className={styles.avatarContainer}>
+        <motion.div layoutId="profile-facehash" className={styles.facehashWrapper}>
           <Facehash name={nickname || ' '} size={180} />
-        </div>
+        </motion.div>
 
-        <div className={styles.badgeWrapper}>
-          <motion.img
-            layoutId="winner-badge"
+        <motion.div layoutId="profile-badge" className={styles.badgeWrapper}>
+          <img
             src={winner.image}
             alt={winner.animal}
             className={styles.badge}
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <div className={styles.inputContainer}>
         <div className={styles.inputWrapper}>
@@ -96,11 +101,9 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
               setErrorMsg(result.error || 'Failed to save');
               setIsSaving(false);
             } else {
-              // Successfully saved! We can handle the success state here.
-              // For now, let's just trigger a massive haptic and maybe clear the form.
               triggerHaptic([30, 50, 30, 50, 50]);
               setIsSaving(false);
-              alert("Your Paradise ID is successfully created and saved!");
+              setView('feed');
             }
           }}
           style={{

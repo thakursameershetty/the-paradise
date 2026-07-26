@@ -26,12 +26,12 @@ export async function saveParticipant({
     return { success: true, participant };
   } catch (error: any) {
     console.error('Failed to save participant:', error);
-    
+
     // Handle Prisma unique constraint error
     if (error.code === 'P2002') {
       return { success: false, error: 'Nickname is already taken. Please try another one.' };
     }
-    
+
     return { success: false, error: 'Failed to save data. Please try again.' };
   }
 }
