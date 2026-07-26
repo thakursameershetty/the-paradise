@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${bigboz.variable} ${mgs4Brush.variable} ${bebasNeue.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back,close" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back,call,close,mail" />
         <link rel="preload" as="video" href="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUC04S1PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
         <link rel="preload" as="video" href="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
       </head>

@@ -11,14 +11,21 @@ import FeedView from './FeedView';
 interface FacehashSectionProps {
   winner: WinnerInfo;
   onBack?: () => void;
+  onEnterFeed?: () => void;
 }
 
-export default function FacehashSection({ winner, onBack }: FacehashSectionProps) {
+export default function FacehashSection({ winner, onBack, onEnterFeed }: FacehashSectionProps) {
   const [nickname, setNickname] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [view, setView] = useState<'form' | 'feed'>('form');
   const [profileData, setProfileData] = useState<any>(null);
+
+  React.useEffect(() => {
+    if (view === 'feed' && onEnterFeed) {
+      onEnterFeed();
+    }
+  }, [view, onEnterFeed]);
 
   const triggerHaptic = (pattern: number | number[] = 10) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {

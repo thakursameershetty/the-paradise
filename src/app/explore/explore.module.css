@@ -224,7 +224,7 @@
 }
 
 .submitBtn {
-  padding: 14px 24px;
+  padding: 10px 24px;
   border-radius: 9999px;
   font-family: var(--font-bigboz), sans-serif;
   font-size: 1.1rem;
@@ -462,7 +462,7 @@
 }
 
 .prevBtn {
-  padding: 12px 24px;
+  padding: 8px 20px;
   border-radius: 9999px;
   font-family: var(--font-bigboz), sans-serif;
   font-size: 1.1rem;
@@ -484,7 +484,7 @@
 }
 
 .nextBtn {
-  padding: 12px 24px;
+  padding: 8px 20px;
   border-radius: 9999px;
   font-family: var(--font-bigboz), sans-serif;
   font-size: 1.1rem;

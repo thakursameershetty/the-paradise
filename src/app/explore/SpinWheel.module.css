@@ -257,7 +257,7 @@
 }
 
 .spinBtn {
-  padding: 16px 64px;
+  padding: 10px 52px;
   border-radius: 9999px;
   font-family: var(--font-bigboz), sans-serif;
   font-size: 1.5rem;
@@ -343,7 +343,7 @@
 }
 
 .primaryNextBtn {
-  padding: 12px 36px;
+  padding: 8px 32px;
   border-radius: 9999px;
   font-family: var(--font-bigboz), sans-serif;
   font-size: 1.5rem;

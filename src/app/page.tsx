@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Countdown } from "@/components/ui/countdown";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -31,6 +32,8 @@ export default function Home() {
       <div className={styles.blurOverlay}></div>
       <div className={styles.overlay}></div>
 
+      <Countdown />
+
       <div className={styles.content}>
         <h2 className={styles.welcomeText}>Welcome to the world of</h2>
         <img src="/assets/paradise.svg" alt="Paradise" className={styles.logoImage} />
@@ -38,9 +41,6 @@ export default function Home() {
           <button onClick={handleExploreClick} className={styles.primaryBtn}>
             Enter
           </button>
-          <a href="#about" className={styles.secondaryBtn}>
-            Learn More
-          </a>
         </div>
       </div>
     </div>

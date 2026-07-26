@@ -9,6 +9,7 @@ import FacehashSection from './FacehashSection';
 export default function ExplorePage() {
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [isFeedView, setIsFeedView] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [showWheel, setShowWheel] = useState(false);
@@ -76,25 +77,29 @@ export default function ExplorePage() {
 
   return (
     <div className={styles.container}>
-      <video
-        autoPlay
-        muted
-        playsInline
-        preload="auto"
-        className={`${styles.videoBackground} ${styles.videoBlur}`}
-      >
-        <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
-      </video>
-      <video
-        autoPlay
-        muted
-        playsInline
-        preload="auto"
-        onEnded={() => setIsVideoEnded(true)}
-        className={`${styles.videoBackground} ${styles.videoMain}`}
-      >
-        <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
-      </video>
+      {!isFeedView && (
+        <>
+          <video
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            className={`${styles.videoBackground} ${styles.videoBlur}`}
+          >
+            <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
+          </video>
+          <video
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            onEnded={() => setIsVideoEnded(true)}
+            className={`${styles.videoBackground} ${styles.videoMain}`}
+          >
+            <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
+          </video>
+        </>
+      )}
 
       <div className={`${styles.endFrame} ${isVideoEnded ? styles.visible : ''}`}></div>
       <div className={styles.overlay}></div>
@@ -172,6 +177,11 @@ export default function ExplorePage() {
           >
             <FacehashSection
               winner={finalWinner}
+              onBack={() => {
+                setFinalWinner(null);
+                setIsFeedView(false);
+              }}
+              onEnterFeed={() => setIsFeedView(true)}
             />
           </motion.div>
         )}
