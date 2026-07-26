@@ -1,0 +1,204 @@
+.hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.videoBackground {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -2;
+  transform: translateX(-50%) translateY(-50%);
+  object-fit: cover;
+}
+
+.blurOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  backdrop-filter: blur(16px);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 15%, transparent 85%, black 100%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 15%, transparent 85%, black 100%);
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.1) 20%, rgba(0, 0, 0, 0.1) 80%, rgba(0, 0, 0, 0.8) 100%);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: white;
+  padding: 0 20px;
+  margin-top: 35vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+  animation: fadeIn 1.5s ease-out;
+}
+
+.welcomeText {
+  font-family: var(--font-mgs4-brush), sans-serif;
+  font-size: 3rem;
+  font-weight: normal;
+  color: white;
+  margin: 0 0 8px 0;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+}
+
+.logoImage {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  margin-bottom: 0px;
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.4));
+}
+
+.ctas {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  padding: 10px 24px;
+  border-radius: 9999px;
+  font-family: var(--font-bigboz), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryBtn {
+  background: linear-gradient(180deg, #b71c1c 0%, #8e0000 100%);
+  color: white;
+  border: 1px solid #7a0000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.primaryBtn:hover {
+  background: linear-gradient(180deg, #c62828 0%, #9e0000 100%);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.secondaryBtn {
+  background: rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: white;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zoomInTransition {
+  animation: zoomInCameraExit 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes zoomInCameraExit {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .hero {
+    height: 100vh;
+  }
+
+  .videoBackground {
+    transform: translateX(-50%) translateY(-50%) scale(0.85);
+  }
+
+  .content {
+    height: 100vh;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 50px;
+    justify-content: flex-end;
+  }
+
+  .welcomeText {
+    font-size: 2.2rem;
+    margin-bottom: 4px;
+  }
+
+  .logoImage {
+    max-width: 360px;
+    margin-bottom: 0px;
+  }
+
+  .ctas {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 16px 20px;
+  }
+}
