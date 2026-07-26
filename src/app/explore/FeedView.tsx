@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { SocialCard } from '@/components/ui/social-card';
+import { PostCard } from '@/components/ui/post-card';
 import { getPosts } from '../actions';
 import styles from './FeedView.module.css';
 import { Facehash } from 'facehash';
@@ -75,7 +75,7 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
               >
-                <SocialCard
+                <PostCard
                   themeColor={winner.colors[0]}
                   author={{
                     name: post.authorName,
