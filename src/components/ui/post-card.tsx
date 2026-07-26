@@ -4,9 +4,10 @@ import {
   Send,
   Heart,
   Bookmark,
+  MessageCircle,
+  MoreHorizontal
 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface PostCardProps {
   author?: {
@@ -40,17 +41,20 @@ export const PostCard: React.FC<PostCardProps> = ({
   content,
   engagement,
   onLike,
+  onComment,
+  onShare,
   onBookmark,
+  onMore,
   className,
   themeColor
 }) => {
   const [liked, setLiked] = useState(engagement?.isLiked || false);
   const [bookmarked, setBookmarked] = useState(engagement?.isBookmarked || false);
-  const [likes, setLikes] = useState(engagement?.likes || 0);
+  const [likesCount, setLikesCount] = useState(engagement?.likes || 0);
 
   const handleLike = () => {
     setLiked((prev) => !prev);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
+    setLikesCount((prev) => liked ? prev - 1 : prev + 1);
     onLike?.();
   };
 
@@ -61,81 +65,118 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   return (
     <div
-      className={cn(
-        "m-4 max-w-[30rem] w-full mx-auto rounded-3xl bg-[#0a0a0a] border border-white/10 shadow-2xl p-5 sm:p-6",
-        className
-      )}
+      className={`w-full max-w-2xl mx-auto rounded-[1.5rem] bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] hover:border-white/20 ${className || ''}`}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 card-header">
-        <div className="flex items-center gap-4">
-          <img
-            src={
-              author?.avatar ||
-              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&auto=format&fit=crop&q=60"
-            }
-            alt={author?.name || "Author"}
-            width={40}
-            height={40}
-            className="rounded-full object-cover w-10 h-10 border border-white/10"
-          />
-          <div>
-            <h3 className="flex flex-col text-neutral-100 font-medium">
-              {author?.name || "HextaStudio"}
-              <span className="flex items-center gap-1.5 opacity-70 text-sm font-normal text-neutral-400">
-                <span>@{author?.username || "HextaStudio"}</span>
-                <span>·</span>
-                <span>{author?.timeAgo || "7h"}</span>
+      <div className="p-5 sm:p-6 pb-4 sm:pb-5">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 card-header">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <img
+                src={
+                  author?.avatar ||
+                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&auto=format&fit=crop&q=60"
+                }
+                alt={author?.name || "Author"}
+                className="rounded-full object-cover w-11 h-11 border-2 border-transparent transition-all duration-300"
+                style={{ borderColor: themeColor || 'transparent' }}
+              />
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <h3 className="text-neutral-100 font-semibold text-[15px] leading-none hover:underline cursor-pointer">
+                  {author?.name || "HextaStudio"}
+                </h3>
+                <span className="text-neutral-500 text-[13px] leading-none flex items-center gap-1">
+                  <span>·</span>
+                  <span>{author?.timeAgo || "7h"}</span>
+                </span>
+              </div>
+              <span className="text-neutral-400 text-[14px] mt-1 leading-none hover:text-neutral-300 cursor-pointer transition-colors">
+                @{author?.username || "HextaStudio"}
               </span>
-            </h3>
+            </div>
           </div>
+          <button 
+            onClick={onMore}
+            className="text-neutral-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+          >
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="mt-4 flex flex-col gap-4">
+          {content?.text && (
+            <p className="whitespace-pre-wrap text-neutral-200 text-[15px] sm:text-[16px] leading-relaxed">
+              {content.text}
+            </p>
+          )}
+          {content?.image && (
+            <div className="relative rounded-[1.25rem] overflow-hidden border border-white/5 bg-white/5 group mt-1">
+              <img
+                src={content.image}
+                alt="Post content"
+                className="w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                style={{ maxHeight: '600px' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="mt-5 flex flex-col gap-4">
-        {content?.text && (
-          <p className="whitespace-pre-wrap text-neutral-200 text-[15px] leading-relaxed px-1">
-            {content.text}
-          </p>
-        )}
-        {content?.image && (
-          <img
-            src={content.image}
-            alt="Post content"
-            className="max-w-full rounded-2xl object-cover border border-white/10 w-full"
-          />
-        )}
-      </div>
-
       {/* Actions */}
-      <div className="mt-5 flex justify-between gap-2 border-t border-white/5 pt-4">
-        <button
-          onClick={handleLike}
-          className="flex grow items-center justify-center gap-2 rounded-xl px-2 py-2 transition hover:bg-white/5"
-          style={{ color: liked ? themeColor || "#ef4444" : "#a3a3a3" }}
-        >
-          <Heart className={cn("w-5 h-5", liked && "fill-current")} />
-          <span className="inline font-medium text-[14px] transition max-sm:hidden">
-            {liked ? "Liked" : "Like"}
-          </span>
-        </button>
+      <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between border-t border-white/5 bg-white/[0.02]">
+        <div className="flex items-center gap-1">
+          {/* Like Button */}
+          <button
+            onClick={handleLike}
+            className="flex items-center gap-2 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 transition-all duration-300 hover:bg-white/10 group"
+            style={{ color: liked ? themeColor || "#ef4444" : "#a3a3a3" }}
+          >
+            <Heart 
+              className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 ${liked ? "fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""}`} 
+            />
+            <span className={`font-medium text-[14px] ${liked ? "text-white" : ""}`}>
+              {likesCount > 0 ? likesCount : 'Like'}
+            </span>
+          </button>
 
+          {/* Comment Button */}
+          <button
+            onClick={onComment}
+            className="flex items-center gap-2 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 transition-all duration-300 hover:bg-white/10 group text-neutral-400 hover:text-white"
+          >
+            <MessageCircle className="w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95" />
+            <span className="font-medium text-[14px]">
+              {engagement?.comments || 'Comment'}
+            </span>
+          </button>
+
+          {/* Share Button */}
+          <button
+            onClick={onShare}
+            className="flex items-center gap-2 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 transition-all duration-300 hover:bg-white/10 group text-neutral-400 hover:text-white"
+          >
+            <Send className="w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 group-hover:-translate-y-[2px] group-hover:translate-x-[2px]" />
+            <span className="font-medium text-[14px] hidden sm:inline">
+              {engagement?.shares || 'Share'}
+            </span>
+          </button>
+        </div>
+
+        {/* Save Button */}
         <button
           onClick={handleBookmark}
-          className="flex grow items-center justify-center gap-2 rounded-xl px-2 py-2 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 transition-all duration-300 hover:bg-white/10 group"
           style={{ color: bookmarked ? themeColor || "#3b82f6" : "#a3a3a3" }}
         >
-          <Bookmark className={cn("w-5 h-5", bookmarked && "fill-current")} />
-          <span className="inline font-medium text-[14px] transition max-sm:hidden">
+          <Bookmark 
+            className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 ${bookmarked ? "fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""}`} 
+          />
+          <span className={`font-medium text-[14px] hidden sm:inline ${bookmarked ? "text-white" : ""}`}>
             {bookmarked ? "Saved" : "Save"}
-          </span>
-        </button>
-
-        <button className="flex grow items-center justify-center gap-2 rounded-xl px-2 py-2 transition hover:bg-white/5 text-[#a3a3a3] hover:text-white">
-          <Send className="w-5 h-5" />
-          <span className="inline font-medium text-[14px] transition max-sm:hidden">
-            Share
           </span>
         </button>
       </div>

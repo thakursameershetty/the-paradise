@@ -30,10 +30,10 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
     if (typeof window !== 'undefined') {
       const savedNickname = localStorage.getItem('paradiseNickname');
       const savedProfile = localStorage.getItem('paradiseProfile');
-      
+
       if (savedNickname) {
         setNickname(savedNickname);
-        
+
         if (savedProfile) {
           setProfileData(JSON.parse(savedProfile));
         } else {
@@ -42,7 +42,7 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
           const answers = JSON.parse(localStorage.getItem('paradiseAnswers') || '{}');
           setProfileData({ nickname: savedNickname, winner, contactInfo, answers });
         }
-        
+
         setView('feed');
         if (window.location.pathname !== '/feed') {
           window.history.replaceState(null, '', '/feed');

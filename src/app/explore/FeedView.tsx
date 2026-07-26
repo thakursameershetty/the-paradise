@@ -42,8 +42,8 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
         </div>
 
         {/* This layoutId matches the one in FacehashSection */}
-        <motion.div 
-          layoutId="profile-avatar-container" 
+        <motion.div
+          layoutId="profile-avatar-container"
           className={styles.avatarTopRight}
           onClick={() => setShowProfile(true)}
           style={{ cursor: 'pointer' }}
@@ -103,7 +103,7 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
       <AnimatePresence>
         {showProfile && profileData && (
           <div className={styles.profileOverlayWrapper}>
-            <motion.div 
+            <motion.div
               className={styles.profileBackdrop}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -121,7 +121,7 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
               <button className={styles.closeModalBtn} onClick={() => setShowProfile(false)}>
                 <span className="material-symbols-rounded">close</span>
               </button>
-              
+
               <div className={styles.profileHeader}>
                 <div className={styles.profileAvatarLarge}>
                   <Facehash name={nickname || ' '} size={100} />
@@ -163,6 +163,30 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
                   <p className={styles.answerText}>{profileData.answers?.q4 || '-'}</p>
                 </div>
               </div>
+
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.href = '/explore';
+                }}
+                style={{
+                  marginTop: '10px',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: 'rgba(255,68,68,0.1)',
+                  color: '#ff4444',
+                  border: '1px solid rgba(255,68,68,0.2)',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem',
+                  width: '100%',
+                  transition: 'background 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,68,68,0.2)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,68,68,0.1)'}
+              >
+                Reset Session & Start Over
+              </button>
 
             </motion.div>
           </div>
