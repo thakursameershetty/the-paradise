@@ -25,6 +25,19 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
     }
   };
 
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedNickname = localStorage.getItem('paradiseNickname');
+      if (savedNickname) {
+        setNickname(savedNickname);
+        setView('feed');
+        if (window.location.pathname !== '/feed') {
+          window.history.replaceState(null, '', '/feed');
+        }
+      }
+    }
+  }, []);
+
   if (view === 'feed') {
     return <FeedView nickname={nickname} winner={winner} />;
   }
@@ -103,6 +116,7 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
             } else {
               triggerHaptic([30, 50, 30, 50, 50]);
               setIsSaving(false);
+              localStorage.setItem('paradiseNickname', nickname);
               window.history.pushState(null, '', '/feed');
               setView('feed');
             }

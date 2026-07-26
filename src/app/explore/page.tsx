@@ -23,6 +23,15 @@ export default function ExplorePage() {
   };
 
   useEffect(() => {
+    // Check local storage to prevent cheating by reloading
+    if (typeof window !== 'undefined') {
+      const savedWinner = localStorage.getItem('paradiseWinner');
+      if (savedWinner) {
+        setFinalWinner(JSON.parse(savedWinner));
+        return; // Don't show initial form if they already spun
+      }
+    }
+
     // Show form after the title has appeared
     const timer = setTimeout(() => {
       setShowForm(true);
@@ -47,6 +56,9 @@ export default function ExplorePage() {
   };
 
   const handleWheelComplete = (winner: WinnerInfo) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('paradiseWinner', JSON.stringify(winner));
+    }
     setShowWheel(false);
     setFinalWinner(winner);
   };
@@ -157,11 +169,6 @@ export default function ExplorePage() {
           >
             <FacehashSection
               winner={finalWinner}
-              onBack={() => {
-                triggerHaptic(20);
-                setFinalWinner(null);
-                setShowWheel(true);
-              }}
             />
           </motion.div>
         )}
