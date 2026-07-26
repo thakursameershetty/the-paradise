@@ -5,21 +5,39 @@ import prisma from '@/lib/prisma';
 export async function saveParticipant({
   nickname,
   animal,
-  color1,
-  color2,
+  colors,
+  fullName,
+  email,
+  phone,
+  q1,
+  q2,
+  q3,
+  q4
 }: {
   nickname: string;
   animal: string;
-  color1: string;
-  color2: string;
+  colors: string[];
+  fullName: string;
+  email: string;
+  phone: string;
+  q1: string;
+  q2: string;
+  q3: string;
+  q4: string;
 }) {
   try {
     const participant = await prisma.participant.create({
       data: {
         nickname,
         animal,
-        color1,
-        color2,
+        colors,
+        fullName,
+        email,
+        phone,
+        q1,
+        q2,
+        q3,
+        q4
       },
     });
 

@@ -15,6 +15,7 @@ export default function ExplorePage() {
   const [finalWinner, setFinalWinner] = useState<WinnerInfo | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '', q4: '' });
+  const [contactInfo, setContactInfo] = useState({ fullName: '', email: '', phone: '' });
 
   const triggerHaptic = (pattern: number | number[] = 10) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -58,6 +59,8 @@ export default function ExplorePage() {
   const handleWheelComplete = (winner: WinnerInfo) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('paradiseWinner', JSON.stringify(winner));
+      localStorage.setItem('paradiseContact', JSON.stringify(contactInfo));
+      localStorage.setItem('paradiseAnswers', JSON.stringify(answers));
     }
     setShowWheel(false);
     setFinalWinner(winner);
@@ -121,15 +124,15 @@ export default function ExplorePage() {
               <form className={styles.form} onSubmit={handleInitialSubmit}>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>NAME</label>
-                  <input type="text" placeholder="NAME" className={styles.input} required />
+                  <input type="text" placeholder="NAME" className={styles.input} required value={contactInfo.fullName} onChange={(e) => setContactInfo({ ...contactInfo, fullName: e.target.value })} />
                 </div>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>EMAIL</label>
-                  <input type="email" placeholder="EMAIL" className={styles.input} required />
+                  <input type="email" placeholder="EMAIL" className={styles.input} required value={contactInfo.email} onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })} />
                 </div>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>MOBILE NO:</label>
-                  <input type="tel" placeholder="MOBILE NO:" className={styles.input} required />
+                  <input type="tel" placeholder="MOBILE NO:" className={styles.input} required value={contactInfo.phone} onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })} />
                 </div>
                 <button type="submit" className={styles.submitBtn}>Enter Jadal Zamana</button>
               </form>

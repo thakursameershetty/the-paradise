@@ -18,6 +18,7 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [view, setView] = useState<'form' | 'feed'>('form');
+  const [profileData, setProfileData] = useState<any>(null);
 
   const triggerHaptic = (pattern: number | number[] = 10) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -28,8 +29,12 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedNickname = localStorage.getItem('paradiseNickname');
+      const savedProfile = localStorage.getItem('paradiseProfile');
       if (savedNickname) {
         setNickname(savedNickname);
+        if (savedProfile) {
+          setProfileData(JSON.parse(savedProfile));
+        }
         setView('feed');
         if (window.location.pathname !== '/feed') {
           window.history.replaceState(null, '', '/feed');
@@ -39,7 +44,7 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
   }, []);
 
   if (view === 'feed') {
-    return <FeedView nickname={nickname} winner={winner} />;
+    return <FeedView nickname={nickname} winner={winner} profileData={profileData} />;
   }
 
   return (
@@ -103,11 +108,20 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
             setErrorMsg('');
             setIsSaving(true);
 
+            const contactInfo = JSON.parse(localStorage.getItem('paradiseContact') || '{}');
+            const answers = JSON.parse(localStorage.getItem('paradiseAnswers') || '{}');
+
             const result = await saveParticipant({
               nickname,
               animal: winner.animal,
-              color1: winner.colors[0],
-              color2: winner.colors[1],
+              colors: winner.colors,
+              fullName: contactInfo.fullName || '',
+              email: contactInfo.email || '',
+              phone: contactInfo.phone || '',
+              q1: answers.q1 || '',
+              q2: answers.q2 || '',
+              q3: answers.q3 || '',
+              q4: answers.q4 || ''
             });
 
             if (!result.success) {
@@ -117,6 +131,9 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
               triggerHaptic([30, 50, 30, 50, 50]);
               setIsSaving(false);
               localStorage.setItem('paradiseNickname', nickname);
+              const fullProfile = { nickname, winner, contactInfo, answers };
+              localStorage.setItem('paradiseProfile', JSON.stringify(fullProfile));
+              setProfileData(fullProfile);
               window.history.pushState(null, '', '/feed');
               setView('feed');
             }
