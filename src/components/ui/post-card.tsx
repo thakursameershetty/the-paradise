@@ -62,7 +62,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   return (
     <div
       className={cn(
-        "m-4 max-w-[30rem] w-full mx-auto rounded-3xl bg-[#0a0a0a] border border-white/10 shadow-2xl p-4",
+        "m-4 max-w-[30rem] w-full mx-auto rounded-3xl bg-[#0a0a0a] border border-white/10 shadow-2xl p-5 sm:p-6",
         className
       )}
     >
@@ -93,7 +93,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="mt-4 flex flex-col gap-4">
+      <div className="mt-5 flex flex-col gap-4">
         {content?.text && (
           <p className="whitespace-pre-wrap text-neutral-200 text-[15px] leading-relaxed px-1">
             {content.text}
@@ -109,7 +109,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="mt-4 flex justify-between gap-2 border-t border-white/5 pt-3">
+      <div className="mt-5 flex justify-between gap-2 border-t border-white/5 pt-4">
         <button
           onClick={handleLike}
           className="flex grow items-center justify-center gap-2 rounded-xl px-2 py-2 transition hover:bg-white/5"
