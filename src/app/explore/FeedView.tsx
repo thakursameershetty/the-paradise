@@ -19,6 +19,12 @@ export default function FeedView({ nickname, winner }: FeedViewProps) {
 
   return (
     <div className={styles.feedContainer}>
+      <div className={styles.backgroundBlobs}>
+        <div className={styles.blob1} />
+        <div className={styles.blob2} />
+        <div className={styles.blob3} />
+      </div>
+
       {/* Top Header with Avatar */}
       <header className={styles.header}>
         <div className={styles.headerText}>

@@ -6,11 +6,68 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(16px);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(24px);
   z-index: 500;
   color: white;
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+.backgroundBlobs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.blob1, .blob2, .blob3 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 10s infinite ease-in-out alternate;
+}
+
+.blob1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(200,0,0,0.8) 0%, rgba(100,0,0,0) 70%);
+  top: -100px;
+  left: -100px;
+}
+
+.blob2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(150,0,0,0.6) 0%, rgba(50,0,0,0) 70%);
+  bottom: -150px;
+  right: -100px;
+  animation-delay: -3s;
+}
+
+.blob3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,50,50,0.4) 0%, rgba(100,0,0,0) 70%);
+  top: 40%;
+  left: 60%;
+  animation-delay: -7s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  100% {
+    transform: translate(-30px, 20px) scale(0.9);
+  }
 }
 
 .header {
