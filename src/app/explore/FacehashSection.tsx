@@ -89,7 +89,7 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
             triggerHaptic(20);
             setErrorMsg('');
             setIsSaving(true);
-            
+
             const result = await saveParticipant({
               nickname,
               animal: winner.animal,
@@ -103,6 +103,7 @@ export default function FacehashSection({ winner, onBack }: FacehashSectionProps
             } else {
               triggerHaptic([30, 50, 30, 50, 50]);
               setIsSaving(false);
+              window.history.pushState(null, '', '/feed');
               setView('feed');
             }
           }}
