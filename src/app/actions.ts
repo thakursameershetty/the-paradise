@@ -30,7 +30,8 @@ export async function saveParticipant({
       data: {
         nickname,
         animal,
-        colors,
+        color1: colors[0],
+        color2: colors[1],
         fullName,
         email,
         phone,
