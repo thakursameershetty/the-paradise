@@ -164,3 +164,36 @@ export async function deleteAdminPost(postId: string) {
     return { success: false, error: 'Failed to delete post. Please try again.' };
   }
 }
+
+export async function getParticipants() {
+  try {
+    const participants = await prisma.participant.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return { success: true, participants };
+  } catch (error: any) {
+    console.error('Error fetching participants:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteParticipant(participantId: string) {
+  try {
+    const participant = await prisma.participant.findUnique({
+      where: { id: participantId },
+    });
+
+    if (!participant) {
+      return { success: false, error: 'Participant not found' };
+    }
+
+    await prisma.participant.delete({
+      where: { id: participantId },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting participant:', error);
+    return { success: false, error: 'Failed to delete participant. Please try again.' };
+  }
+}
