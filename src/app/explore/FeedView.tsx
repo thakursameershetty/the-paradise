@@ -221,6 +221,18 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
           >
+            {/* Home button */}
+            <button
+              className={styles.fullMenuHome}
+              onClick={() => {
+                setShowMenu(false);
+                router.push('/');
+              }}
+              title="Go to Home"
+            >
+              <span className="material-symbols-rounded">home</span>
+            </button>
+
             {/* Close button */}
             <button className={styles.fullMenuClose} onClick={() => setShowMenu(false)}>
               <X size={24} />

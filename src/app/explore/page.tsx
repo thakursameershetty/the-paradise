@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from './explore.module.css';
 import SpinWheel, { WinnerInfo } from './SpinWheel';
 import FacehashSection from './FacehashSection';
+import { checkParticipantExists } from '../actions';
 
 export default function ExplorePage() {
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isFeedView, setIsFeedView] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [showWheel, setShowWheel] = useState(false);
@@ -41,9 +43,43 @@ export default function ExplorePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleInitialSubmit = (e: React.FormEvent) => {
+  const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isChecking) return;
+    
+    setIsChecking(true);
     triggerHaptic(20);
+
+    const result = await checkParticipantExists(contactInfo.email, contactInfo.phone);
+    setIsChecking(false);
+    if (result.success && result.participant) {
+      const p = result.participant;
+      const winner: WinnerInfo = {
+        image: `/assets/badges/${p.animal.split(' ').pop()?.toLowerCase()}.png`,
+        animal: p.animal,
+        character: '',
+        colors: p.colors
+      };
+      
+      const fullProfile = { 
+        nickname: p.nickname, 
+        winner, 
+        contactInfo: { fullName: p.fullName, email: p.email, phone: p.phone }, 
+        answers: { q1: p.q1, q2: p.q2, q3: p.q3, q4: p.q4 } 
+      };
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('paradiseWinner', JSON.stringify(winner));
+        localStorage.setItem('paradiseContact', JSON.stringify(fullProfile.contactInfo));
+        localStorage.setItem('paradiseAnswers', JSON.stringify(fullProfile.answers));
+        localStorage.setItem('paradiseNickname', p.nickname);
+        localStorage.setItem('paradiseProfile', JSON.stringify(fullProfile));
+      }
+
+      setFinalWinner(winner);
+      return;
+    }
+
     setShowModal(true);
   };
 
@@ -84,6 +120,7 @@ export default function ExplorePage() {
             muted
             playsInline
             preload="auto"
+            poster="/assets/end-frame.png"
             className={`${styles.videoBackground} ${styles.videoBlur}`}
           >
             <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
@@ -93,6 +130,7 @@ export default function ExplorePage() {
             muted
             playsInline
             preload="auto"
+            poster="/assets/end-frame.png"
             onEnded={() => setIsVideoEnded(true)}
             className={`${styles.videoBackground} ${styles.videoMain}`}
           >
@@ -139,7 +177,9 @@ export default function ExplorePage() {
                   <label className={styles.label}>MOBILE NO:</label>
                   <input type="tel" placeholder="MOBILE NO:" className={styles.input} required value={contactInfo.phone} onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })} />
                 </div>
-                <button type="submit" className={styles.submitBtn}>Enter Jadal Zamana</button>
+                <button type="submit" className={styles.submitBtn} disabled={isChecking}>
+                  {isChecking ? 'Checking...' : 'Enter Jadal Zamana'}
+                </button>
               </form>
             </div>
           </motion.div>

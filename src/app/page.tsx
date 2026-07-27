@@ -14,6 +14,7 @@ const bgImages = [
 export default function Home() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [bgIndex, setBgIndex] = useState(0);
+  const [heroLoaded, setHeroLoaded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -53,11 +54,26 @@ export default function Home() {
           muted
           playsInline
           preload="auto"
+          poster="/assets/hero-thumbnail.jpg"
+          onCanPlayThrough={() => setHeroLoaded(true)}
           className={styles.videoBackground}
         >
           <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUC04S1PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
+
+        {/* Preload Explore Video once Hero is loaded */}
+        {heroLoaded && (
+          <video
+            preload="auto"
+            muted
+            playsInline
+            poster="/assets/end-frame.png"
+            style={{ width: 0, height: 0, position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+          >
+            <source src="https://828w0y4x5k.ufs.sh/f/STslBtUPAU3wUh13e5PB6LbOpi8KV4SN5ZoxheqRcCyFrX3D" type="video/mp4" />
+          </video>
+        )}
         <div className={styles.blurOverlay}></div>
         <div className={styles.overlay}></div>
 
@@ -99,7 +115,7 @@ export default function Home() {
             <h3 className={styles.cardTitle}>
               <span className={styles.fontBigboz}>The Paradise Glimpse</span>
               <br />
-              <span className={styles.fontBrush}>(THE RAW STATEMENT)</span>
+              <span className={styles.fontBrush}>(The Raw Statement)</span>
             </h3>
           </div>
 
@@ -142,7 +158,7 @@ export default function Home() {
             key={src}
             src={src}
             alt={`Paradise Background ${i}`}
-            className={`${styles.videoBackground} ${styles.fadeBg}`}
+            className={`${styles.videoBackground} ${styles.fadeBg} ${styles.heroImage}`}
             style={{ opacity: i === bgIndex ? 1 : 0 }}
           />
         ))}

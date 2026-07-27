@@ -65,3 +65,20 @@ export async function getPosts() {
     return { success: false, error: error.message };
   }
 }
+
+export async function checkParticipantExists(email: string, phone: string) {
+  try {
+    const participant = await prisma.participant.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { phone: phone }
+        ]
+      }
+    });
+    return { success: true, participant };
+  } catch (error: any) {
+    console.error('Error checking participant:', error);
+    return { success: false, error: error.message };
+  }
+}
