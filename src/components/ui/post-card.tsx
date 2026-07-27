@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Facehash } from "facehash";
 import { useState } from "react";
+import { LikeButton } from "@/components/ui/like-button";
 
 interface PostCardProps {
   author?: {
@@ -146,59 +147,109 @@ export const PostCard: React.FC<PostCardProps> = ({
         style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem", paddingTop: "0.875rem", paddingBottom: "0.875rem" }}
       >
         <div className="flex items-center gap-6">
+          <LikeButton
+            liked={liked}
+            onClick={handleLike}
+            className="group flex items-center gap-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
+            style={{ 
+              marginLeft: "-0.75rem",
+              paddingLeft: "1.25rem",
+              paddingRight: "1.25rem",
+              paddingTop: "0.625rem",
+              paddingBottom: "0.625rem",
+              color: liked ? themeColor || "#ef4444" : "#a3a3a3" 
+            }}
+          >
+            <Heart
+              className={`h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 ${liked ? "fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""
+                }`}
+            />
+            {/* Mobile: number only if > 0. Desktop: number or "Like" label */}
+            {likesCount > 0 ? (
+              <span 
+                className={`text-[13px] font-medium ${liked ? "text-white" : ""}`}
+                style={{ minWidth: "30px", display: "inline-block" }}
+              >
+                {likesCount}
+              </span>
+            ) : (
+              <span 
+                className={`hidden text-[13px] font-medium sm:inline ${liked ? "text-white" : ""}`}
+                style={{ minWidth: "30px", display: "inline-block" }}
+              >
+                Like
+              </span>
+            )}
+          </LikeButton>
+
           <button
-          onClick={handleLike}
-          className="group -ml-2 flex items-center gap-1.5 rounded-full px-2 py-2 transition-all duration-300 hover:bg-white/10"
-          style={{ color: liked ? themeColor || "#ef4444" : "#a3a3a3" }}
-        >
-          <Heart
-            className={`h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 ${liked ? "fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""
-              }`}
-          />
-          {/* Mobile: number only if > 0. Desktop: number or "Like" label */}
-          {likesCount > 0 ? (
-            <span className={`text-[13px] font-medium ${liked ? "text-white" : ""}`}>{likesCount}</span>
-          ) : (
-            <span className={`hidden text-[13px] font-medium sm:inline ${liked ? "text-white" : ""}`}>Like</span>
-          )}
-        </button>
+            onClick={onComment}
+            className="group flex items-center gap-1.5 rounded-full text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
+            style={{ paddingLeft: "1.25rem", paddingRight: "1.25rem", paddingTop: "0.625rem", paddingBottom: "0.625rem" }}
+          >
+            <MessageCircle className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95" />
+            {(engagement?.comments ?? 0) > 0 ? (
+              <span 
+                className="text-[13px] font-medium"
+                style={{ minWidth: "60px", display: "inline-block" }}
+              >
+                {engagement!.comments}
+              </span>
+            ) : (
+              <span 
+                className="hidden text-[13px] font-medium sm:inline"
+                style={{ minWidth: "60px", display: "inline-block" }}
+              >
+                Comment
+              </span>
+            )}
+          </button>
 
-        <button
-          onClick={onComment}
-          className="group flex items-center gap-1.5 rounded-full px-2 py-2 text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
-        >
-          <MessageCircle className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95" />
-          {(engagement?.comments ?? 0) > 0 ? (
-            <span className="text-[13px] font-medium">{engagement!.comments}</span>
-          ) : (
-            <span className="hidden text-[13px] font-medium sm:inline">Comment</span>
-          )}
-        </button>
-
-        <button
-          onClick={onShare}
-          className="group flex items-center gap-1.5 rounded-full px-2 py-2 text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
-        >
-          <Send className="h-[18px] w-[18px] transition-transform duration-300 group-hover:-translate-y-[2px] group-hover:translate-x-[2px] group-hover:scale-110 group-active:scale-95" />
-          {(engagement?.shares ?? 0) > 0 ? (
-            <span className="text-[13px] font-medium">{engagement!.shares}</span>
-          ) : (
-            <span className="hidden text-[13px] font-medium sm:inline">Share</span>
-          )}
-        </button>
+          <button
+            onClick={onShare}
+            className="group flex items-center gap-1.5 rounded-full text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
+            style={{ paddingLeft: "1.25rem", paddingRight: "1.25rem", paddingTop: "0.625rem", paddingBottom: "0.625rem" }}
+          >
+            <Send className="h-[18px] w-[18px] transition-transform duration-300 group-hover:-translate-y-[2px] group-hover:translate-x-[2px] group-hover:scale-110 group-active:scale-95" />
+            {(engagement?.shares ?? 0) > 0 ? (
+              <span 
+                className="text-[13px] font-medium"
+                style={{ minWidth: "40px", display: "inline-block" }}
+              >
+                {engagement!.shares}
+              </span>
+            ) : (
+              <span 
+                className="hidden text-[13px] font-medium sm:inline"
+                style={{ minWidth: "40px", display: "inline-block" }}
+              >
+                Share
+              </span>
+            )}
+          </button>
         </div>
 
         <button
           onClick={handleBookmark}
-          className="group -mr-2 flex items-center gap-1.5 rounded-full px-2 py-2 transition-all duration-300 hover:bg-white/10"
-          style={{ color: bookmarked ? themeColor || "#3b82f6" : "#a3a3a3" }}
+          className="group flex items-center gap-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
+          style={{ 
+            marginRight: "-0.75rem",
+            paddingLeft: "1.25rem",
+            paddingRight: "1.25rem",
+            paddingTop: "0.625rem",
+            paddingBottom: "0.625rem",
+            color: bookmarked ? themeColor || "#3b82f6" : "#a3a3a3" 
+          }}
         >
           <Bookmark
             className={`h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 ${bookmarked ? "fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""
               }`}
           />
           {/* Save has no count — hide label on mobile entirely */}
-          <span className={`hidden text-[13px] font-medium sm:inline ${bookmarked ? "text-white" : ""}`}>
+          <span 
+            className={`hidden text-[13px] font-medium sm:inline ${bookmarked ? "text-white" : ""}`}
+            style={{ minWidth: "40px", display: "inline-block" }}
+          >
             {bookmarked ? "Saved" : "Save"}
           </span>
         </button>
