@@ -1,5 +1,9 @@
 import { getParticipants } from '@/app/actions';
 import ManageUsersTable from './ManageUsersTable';
+import styles from './page.module.css';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata = {
   title: 'Manage Users | The Paradise',
@@ -17,9 +21,10 @@ export default async function ManageUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-mono uppercase tracking-widest mb-8 text-zinc-300">Manage Users</h1>
+    <div className={styles.main}>
+      <div className={styles.blurOverlay}></div>
+      <div className={styles.contentWrapper}>
+        <h1 className={styles.title}>MANAGE USERS</h1>
         <ManageUsersTable initialParticipants={participants || []} />
       </div>
     </div>

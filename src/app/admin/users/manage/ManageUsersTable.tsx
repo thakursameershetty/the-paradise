@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { deleteParticipant } from '@/app/actions';
+import { deleteParticipant, deleteParticipants } from '@/app/actions';
+import styles from './page.module.css';
 
 type Participant = {
   id: string;
@@ -21,16 +22,46 @@ type Participant = {
 
 export default function ManageUsersTable({ initialParticipants }: { initialParticipants: Participant[] }) {
   const [participants, setParticipants] = useState(initialParticipants);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  // Sync state when server component data refetches
+  useEffect(() => {
+    setParticipants(initialParticipants);
+  }, [initialParticipants]);
+
+  // Auto-refresh the page data every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [router]);
+
+  const filteredParticipants = participants.filter((p) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      p.fullName.toLowerCase().includes(q) ||
+      p.nickname.toLowerCase().includes(q) ||
+      p.email.toLowerCase().includes(q) ||
+      p.phone.includes(q) ||
+      p.animal.toLowerCase().includes(q)
+    );
+  });
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
-    
+
     startTransition(async () => {
       const result = await deleteParticipant(id);
       if (result.success) {
         setParticipants((prev) => prev.filter((p) => p.id !== id));
+        const newSelected = new Set(selectedIds);
+        newSelected.delete(id);
+        setSelectedIds(newSelected);
         router.refresh();
       } else {
         alert(result.error || 'Failed to delete user');
@@ -38,67 +69,157 @@ export default function ManageUsersTable({ initialParticipants }: { initialParti
     });
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} users?`)) return;
+
+    startTransition(async () => {
+      const result = await deleteParticipants(Array.from(selectedIds));
+      if (result.success) {
+        setParticipants((prev) => prev.filter((p) => !selectedIds.has(p.id)));
+        setSelectedIds(new Set());
+        setLastSelectedIndex(null);
+        router.refresh();
+      } else {
+        alert(result.error || 'Failed to delete users');
+      }
+    });
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent, index: number, id: string) => {
+    const next = new Set(selectedIds);
+    const isSelecting = !next.has(id);
+
+    if (e.shiftKey && lastSelectedIndex !== null) {
+      const start = Math.min(lastSelectedIndex, index);
+      const end = Math.max(lastSelectedIndex, index);
+
+      for (let i = start; i <= end; i++) {
+        const rowId = filteredParticipants[i].id;
+        if (isSelecting) {
+          next.add(rowId);
+        } else {
+          next.delete(rowId);
+        }
+      }
+    } else {
+      if (isSelecting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+    }
+
+    setSelectedIds(next);
+    setLastSelectedIndex(index);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredParticipants.length && filteredParticipants.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredParticipants.map((p) => p.id)));
+    }
+    setLastSelectedIndex(null);
+  };
+
   return (
-    <div className="border border-zinc-800 bg-zinc-950/50 backdrop-blur-sm rounded-sm overflow-hidden">
-      <div className="border-b border-zinc-800 p-6 flex items-center justify-between bg-zinc-900/20">
-          <h2 className="font-mono text-xs text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-              User Data Log
-          </h2>
-          <span className="text-xs font-mono text-zinc-600">{participants.length} registered</span>
+    <div className={styles.tableContainer}>
+      <div className={styles.tableHeader}>
+        <h2 className={styles.tableTitle}>
+          User Data Log
+        </h2>
+        <span className={styles.tableCount}>{participants.length} registered</span>
       </div>
-      
-      <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
-              <thead>
-                  <tr className="border-b border-zinc-800 text-zinc-500 font-mono text-[10px] uppercase tracking-widest bg-zinc-900/10">
-                      <th className="p-4 font-normal">Timestamp</th>
-                      <th className="p-4 font-normal">Full Name</th>
-                      <th className="p-4 font-normal">Nickname</th>
-                      <th className="p-4 font-normal">Contact</th>
-                      <th className="p-4 font-normal">Details</th>
-                      <th className="p-4 font-normal text-right">Actions</th>
-                  </tr>
-              </thead>
-              <tbody className="font-mono text-sm text-zinc-300">
-                  {participants.map((item) => (
-                      <tr key={item.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                          <td className="p-4 text-zinc-500 whitespace-nowrap">
-                              {new Date(item.createdAt).toLocaleDateString()} {new Date(item.createdAt).toLocaleTimeString()}
-                          </td>
-                          <td className="p-4 text-white/90">{item.fullName}</td>
-                          <td className="p-4 tabular-nums text-white/90">{item.nickname}</td>
-                          <td className="p-4">
-                            <div className="flex flex-col gap-1 text-xs">
-                              <span className="text-zinc-300">{item.email}</span>
-                              <span className="text-zinc-500">{item.phone}</span>
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex flex-col gap-1 text-xs text-zinc-400">
-                              <span>Animal: {item.animal}</span>
-                              <span>Colors: {item.colors.join(', ')}</span>
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                              <button 
-                                onClick={() => handleDelete(item.id)}
-                                disabled={isPending}
-                                className="text-red-500 hover:text-red-400 text-[10px] uppercase tracking-wider px-3 py-1.5 border border-red-900/30 rounded-sm hover:bg-red-900/10 transition-colors disabled:opacity-50"
-                              >
-                                Delete
-                              </button>
-                          </td>
-                      </tr>
-                  ))}
-                  {participants.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="p-8 text-center text-zinc-600 font-mono text-sm">
-                        No user records found.
-                      </td>
-                    </tr>
-                  )}
-              </tbody>
-          </table>
+
+      <div className={styles.tableControls}>
+        <input
+          type="text"
+          placeholder="Search users..."
+          className={styles.searchInput}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {selectedIds.size > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            disabled={isPending}
+            className={styles.bulkDeleteBtn}
+          >
+            DELETE SELECTED ({selectedIds.size})
+          </button>
+        )}
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th style={{ width: '40px', paddingLeft: '24px' }}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={filteredParticipants.length > 0 && selectedIds.size === filteredParticipants.length}
+                  onChange={toggleSelectAll}
+                />
+              </th>
+              <th>Timestamp</th>
+              <th>Full Name</th>
+              <th>Nickname</th>
+              <th>Contact</th>
+              <th>Details</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredParticipants.map((item, index) => (
+              <tr key={item.id} className={selectedIds.has(item.id) ? styles.selectedRow : ''}>
+                <td style={{ paddingLeft: '24px' }}>
+                  <input
+                    type="checkbox"
+                    className={styles.checkbox}
+                    checked={selectedIds.has(item.id)}
+                    onChange={() => { }}
+                    onClick={(e) => handleCheckboxClick(e, index, item.id)}
+                  />
+                </td>
+                <td className={styles.textMuted}>
+                  {new Date(item.createdAt).toLocaleDateString()} <br /> {new Date(item.createdAt).toLocaleTimeString()}
+                </td>
+                <td className={styles.textHighlight}>{item.fullName}</td>
+                <td className={`${styles.monoText} ${styles.textHighlight}`}>{item.nickname}</td>
+                <td>
+                  <div className={styles.detailsList}>
+                    <span className={styles.textHighlight}>{item.email}</span>
+                    <span className={styles.textMuted}>{item.phone}</span>
+                  </div>
+                </td>
+                <td>
+                  <div className={styles.detailsList}>
+                    <span className={styles.textMuted}>Animal: <span className={styles.textHighlight}>{item.animal}</span></span>
+                    <span className={styles.textMuted}>Colors: <span className={styles.textHighlight}>{item.colors.join(', ')}</span></span>
+                  </div>
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    disabled={isPending}
+                    className={styles.deleteBtn}
+                  >
+                    DELETE
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {filteredParticipants.length === 0 && (
+              <tr>
+                <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-geist-mono), monospace' }}>
+                  {participants.length === 0 ? 'No user records found.' : 'No users match your search.'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { writeFile, unlink, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { revalidatePath } from 'next/cache';
 
 export async function saveParticipant({
   nickname,
@@ -43,6 +44,7 @@ export async function saveParticipant({
       },
     });
 
+    revalidatePath('/admin/users/manage');
     return { success: true, participant };
   } catch (error: any) {
     console.error('Failed to save participant:', error);
@@ -103,17 +105,17 @@ export async function createAdminPost(formData: FormData) {
       if (mediaFile.size > 1024 * 1024) {
         return { success: false, error: 'Image size must be below 1MB.' };
       }
-      
+
       const bytes = await mediaFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const filename = `${Date.now()}-${mediaFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
       const uploadDir = join(process.cwd(), 'public/uploads');
       const filepath = join(uploadDir, filename);
-      
+
       // Ensure the directory exists
       await mkdir(uploadDir, { recursive: true });
       await writeFile(filepath, buffer);
-      
+
       imageUrl = `/uploads/${filename}`;
     }
 
@@ -191,9 +193,28 @@ export async function deleteParticipant(participantId: string) {
       where: { id: participantId },
     });
 
+    revalidatePath('/admin/users/manage');
     return { success: true };
   } catch (error: any) {
     console.error('Error deleting participant:', error);
     return { success: false, error: 'Failed to delete participant. Please try again.' };
+  }
+}
+
+export async function deleteParticipants(participantIds: string[]) {
+  try {
+    await prisma.participant.deleteMany({
+      where: {
+        id: {
+          in: participantIds,
+        },
+      },
+    });
+
+    revalidatePath('/admin/users/manage');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting participants:', error);
+    return { success: false, error: 'Failed to delete participants. Please try again.' };
   }
 }
