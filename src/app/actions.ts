@@ -210,3 +210,25 @@ export async function deleteParticipants(participantIds: string[]) {
     return { success: false, error: 'Failed to delete participants. Please try again.' };
   }
 }
+
+export async function getUserLikes(username: string) {
+  try {
+    const postLikes = await (prisma as any).postLike.findMany({
+      where: { username },
+      select: { postId: true }
+    });
+    const commentLikes = await (prisma as any).commentLike.findMany({
+      where: { username },
+      select: { commentId: true }
+    });
+
+    return { 
+      success: true, 
+      postLikes: postLikes.map((l: { postId: string }) => l.postId),
+      commentLikes: commentLikes.map((l: { commentId: string }) => l.commentId)
+    };
+  } catch (error: any) {
+    console.error('Error fetching user likes:', error);
+    return { success: false, error: 'Failed to fetch likes', postLikes: [], commentLikes: [] };
+  }
+}

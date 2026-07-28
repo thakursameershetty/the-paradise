@@ -11,6 +11,7 @@ import styles from './FeedView.module.css';
 import { Facehash } from 'facehash';
 import type { WinnerInfo } from './SpinWheel';
 import { Menu, X, LogOut, MessageSquare, ShoppingBag } from 'lucide-react';
+import { useSession } from '@/hooks/useSession';
 
 interface FeedViewProps {
   nickname: string;
@@ -44,6 +45,7 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
   const [isScrolled, setIsScrolled] = useState(false);
   const [showDeletedModal, setShowDeletedModal] = useState(false);
   const router = useRouter();
+  const { hasUpvoted, toggleUpvote } = useSession();
 
   useEffect(() => {
     async function init() {
@@ -173,30 +175,71 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
               >
-                <PostCard
-                  themeColor={winner.colors[0]}
-                  author={{
-                    name: post.authorName,
-                    username: post.authorUsername,
-                    avatar: post.authorAvatar,
-                    timeAgo: new Date(post.createdAt).toLocaleString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    }),
-                  }}
-                  content={{
-                    text: post.content,
-                    image: post.image || undefined,
-                  }}
-                  engagement={{
-                    likes: post.likes,
-                    comments: post.comments,
-                    shares: post.shares,
-                  }}
-                />
+                <div 
+                  onClick={() => router.push(`/post/${post.id}`)}
+                  className="cursor-pointer"
+                >
+                  <PostCard
+                    themeColor={winner.colors[0]}
+                    author={{
+                      name: post.authorName,
+                      username: post.authorUsername,
+                      avatar: post.authorAvatar,
+                      timeAgo: new Date(post.createdAt).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      }),
+                    }}
+                    content={{
+                      text: post.content,
+                      image: post.image || undefined,
+                    }}
+                    engagement={{
+                      likes: post.likes,
+                      comments: post.comments,
+                      shares: post.shares,
+                      isLiked: hasUpvoted(post.id),
+                    }}
+                    onLike={async (e) => {
+                      if(e) e.stopPropagation();
+                      const newLikeState = !hasUpvoted(post.id);
+                      toggleUpvote(post.id, newLikeState);
+                      try {
+                        await fetch(`/api/posts/${post.id}/like`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ isLiked: newLikeState, username: nickname })
+                        });
+                      } catch (error) {
+                        console.error('Failed to like post:', error);
+                        // Revert on failure
+                        toggleUpvote(post.id, !newLikeState);
+                      }
+                    }}
+                    onComment={(e: any) => {
+                      if(e) e.stopPropagation();
+                      router.push(`/post/${post.id}?focus=comments`);
+                    }}
+                    onShare={(e: any) => {
+                      if(e) e.stopPropagation();
+                      const shareUrl = `${window.location.origin}/post/${post.id}`;
+                      if (navigator.share) {
+                        navigator.share({
+                          title: `Update from ${post.authorName}`,
+                          text: `Check out this update on Paradise!`,
+                          url: shareUrl,
+                        }).catch(console.error);
+                      } else {
+                        navigator.clipboard.writeText(shareUrl).then(() => {
+                          alert("Post link copied to clipboard!");
+                        });
+                      }
+                    }}
+                  />
+                </div>
               </motion.div>
             ))
           )}

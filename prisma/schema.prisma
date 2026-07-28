@@ -21,14 +21,49 @@ model Participant {
 }
 
 model Post {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   authorName     String
   authorUsername String
   authorAvatar   String
   content        String
   image          String?
-  likes          Int      @default(0)
-  comments       Int      @default(0)
-  shares         Int      @default(0)
-  createdAt      DateTime @default(now())
+  likes          Int       @default(0)
+  comments       Int       @default(0)
+  shares         Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  commentsList   Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  author    String
+  text      String
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  username  String
+  createdAt DateTime @default(now())
+
+  @@unique([postId, username])
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  commentId String
+  username  String
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, username])
 }

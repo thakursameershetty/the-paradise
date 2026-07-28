@@ -52,11 +52,11 @@ interface PostCardProps {
     isLiked?: boolean;
     isBookmarked?: boolean;
   };
-  onLike?: () => void;
-  onComment?: () => void;
-  onShare?: () => void;
-  onBookmark?: () => void;
-  onMore?: () => void;
+  onLike?: (e?: React.MouseEvent) => void;
+  onComment?: (e?: React.MouseEvent) => void;
+  onShare?: (e?: React.MouseEvent) => void;
+  onBookmark?: (e?: React.MouseEvent) => void;
+  onMore?: (e?: React.MouseEvent) => void;
   className?: string;
   themeColor?: string;
 }
@@ -77,15 +77,27 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [bookmarked, setBookmarked] = useState(engagement?.isBookmarked || false);
   const [likesCount, setLikesCount] = useState(engagement?.likes || 0);
 
-  const handleLike = () => {
+  const handleLike = (e?: React.MouseEvent) => {
+    if(e) e.stopPropagation();
     setLiked((prev) => !prev);
     setLikesCount((prev) => liked ? prev - 1 : prev + 1);
     onLike?.();
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = (e?: React.MouseEvent) => {
+    if(e) e.stopPropagation();
     setBookmarked((prev) => !prev);
     onBookmark?.();
+  };
+
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onComment?.();
+  };
+
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onShare?.();
   };
 
   return (
@@ -173,13 +185,13 @@ export const PostCard: React.FC<PostCardProps> = ({
           <LikeButton
             liked={liked}
             onClick={handleLike}
-            className="group flex items-center gap-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
+            className="group flex items-center gap-1 rounded-full transition-all duration-300 hover:bg-white/10"
             style={{
-              marginLeft: "-0.75rem",
-              paddingLeft: "1.25rem",
-              paddingRight: "1.25rem",
-              paddingTop: "0.625rem",
-              paddingBottom: "0.625rem",
+              marginLeft: "-0.5rem",
+              paddingLeft: "0.625rem",
+              paddingRight: "0.625rem",
+              paddingTop: "0.5rem",
+              paddingBottom: "0.5rem",
               color: liked ? themeColor || "#ef4444" : "#a3a3a3"
             }}
           >
@@ -187,65 +199,46 @@ export const PostCard: React.FC<PostCardProps> = ({
               className={`h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95 ${liked ? "fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" : ""
                 }`}
             />
-            {/* Mobile: number only if > 0. Desktop: number or "Like" label */}
             {likesCount > 0 ? (
-              <span
-                className={`text-[13px] font-medium ${liked ? "text-white" : ""}`}
-                style={{ minWidth: "30px", display: "inline-block" }}
-              >
+              <span className={`text-[13px] font-medium ${liked ? "text-white" : ""}`}>
                 {likesCount}
               </span>
             ) : (
-              <span
-                className={`hidden text-[13px] font-medium sm:inline ${liked ? "text-white" : ""}`}
-                style={{ minWidth: "30px", display: "inline-block" }}
-              >
+              <span className={`hidden text-[13px] font-medium sm:inline ${liked ? "text-white" : ""}`}>
                 Like
               </span>
             )}
           </LikeButton>
 
           <button
-            onClick={onComment}
-            className="group flex items-center gap-1.5 rounded-full text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
-            style={{ paddingLeft: "1.25rem", paddingRight: "1.25rem", paddingTop: "0.625rem", paddingBottom: "0.625rem" }}
+            onClick={handleCommentClick}
+            className="group flex items-center gap-1 rounded-full text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
+            style={{ paddingLeft: "0.625rem", paddingRight: "0.625rem", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
           >
             <MessageCircle className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95" />
             {(engagement?.comments ?? 0) > 0 ? (
-              <span
-                className="text-[13px] font-medium"
-                style={{ minWidth: "60px", display: "inline-block" }}
-              >
+              <span className="text-[13px] font-medium">
                 {engagement!.comments}
               </span>
             ) : (
-              <span
-                className="hidden text-[13px] font-medium sm:inline"
-                style={{ minWidth: "60px", display: "inline-block" }}
-              >
+              <span className="hidden text-[13px] font-medium sm:inline">
                 Comment
               </span>
             )}
           </button>
 
           <button
-            onClick={onShare}
-            className="group flex items-center gap-1.5 rounded-full text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
-            style={{ paddingLeft: "1.25rem", paddingRight: "1.25rem", paddingTop: "0.625rem", paddingBottom: "0.625rem" }}
+            onClick={handleShareClick}
+            className="group flex items-center gap-1 rounded-full text-neutral-400 transition-all duration-300 hover:bg-white/10 hover:text-white"
+            style={{ paddingLeft: "0.625rem", paddingRight: "0.625rem", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
           >
             <Send className="h-[18px] w-[18px] transition-transform duration-300 group-hover:-translate-y-[2px] group-hover:translate-x-[2px] group-hover:scale-110 group-active:scale-95" />
             {(engagement?.shares ?? 0) > 0 ? (
-              <span
-                className="text-[13px] font-medium"
-                style={{ minWidth: "40px", display: "inline-block" }}
-              >
+              <span className="text-[13px] font-medium">
                 {engagement!.shares}
               </span>
             ) : (
-              <span
-                className="hidden text-[13px] font-medium sm:inline"
-                style={{ minWidth: "40px", display: "inline-block" }}
-              >
+              <span className="hidden text-[13px] font-medium sm:inline">
                 Share
               </span>
             )}
@@ -254,13 +247,13 @@ export const PostCard: React.FC<PostCardProps> = ({
 
         <button
           onClick={handleBookmark}
-          className="group flex items-center gap-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
+          className="group flex items-center gap-1 rounded-full transition-all duration-300 hover:bg-white/10"
           style={{
-            marginRight: "-0.75rem",
-            paddingLeft: "1.25rem",
-            paddingRight: "1.25rem",
-            paddingTop: "0.625rem",
-            paddingBottom: "0.625rem",
+            marginRight: "-0.5rem",
+            paddingLeft: "0.625rem",
+            paddingRight: "0.625rem",
+            paddingTop: "0.5rem",
+            paddingBottom: "0.5rem",
             color: bookmarked ? themeColor || "#3b82f6" : "#a3a3a3"
           }}
         >
@@ -271,7 +264,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           {/* Save has no count — hide label on mobile entirely */}
           <span
             className={`hidden text-[13px] font-medium sm:inline ${bookmarked ? "text-white" : ""}`}
-            style={{ minWidth: "40px", display: "inline-block" }}
+            style={{ minWidth: "40px", display: "inline-block", textAlign: "left" }}
           >
             {bookmarked ? "Saved" : "Save"}
           </span>
