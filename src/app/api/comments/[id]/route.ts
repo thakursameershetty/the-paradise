@@ -15,9 +15,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         where: { commentId_username: { commentId: id, username } }
       });
       if (!existingLike) {
-        await prisma.$transaction([
+        await (prisma as any).$transaction([
           (prisma as any).commentLike.create({ data: { commentId: id, username } }),
-          prisma.comment.update({ where: { id }, data: { upvotes: { increment: 1 } } })
+          (prisma as any).comment.update({ where: { id }, data: { upvotes: { increment: 1 } } })
         ]);
       }
     } else {
@@ -25,9 +25,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         where: { commentId_username: { commentId: id, username } }
       });
       if (existingLike) {
-        await prisma.$transaction([
+        await (prisma as any).$transaction([
           (prisma as any).commentLike.delete({ where: { commentId_username: { commentId: id, username } } }),
-          prisma.comment.update({ where: { id }, data: { upvotes: { decrement: 1 } } })
+          (prisma as any).comment.update({ where: { id }, data: { upvotes: { decrement: 1 } } })
         ]);
       }
     }
@@ -45,7 +45,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const { searchParams } = new URL(request.url);
     const author = searchParams.get('author');
 
-    const comment = await prisma.comment.findUnique({
+    const comment = await (prisma as any).comment.findUnique({
       where: { id }
     });
 
@@ -57,7 +57,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    await prisma.comment.delete({
+    await (prisma as any).comment.delete({
       where: { id }
     });
 
