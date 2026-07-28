@@ -16,12 +16,7 @@ model Participant {
   animal    String
   colors    String[]
   fullName  String
-  email     String
   phone     String
-  q1        String
-  q2        String
-  q3        String
-  q4        String
   createdAt DateTime @default(now())
 }
 

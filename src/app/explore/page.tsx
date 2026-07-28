@@ -13,12 +13,9 @@ export default function ExplorePage() {
   const [isFeedView, setIsFeedView] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
-  const [showModal, setShowModal] = useState(false);
   const [showWheel, setShowWheel] = useState(false);
   const [finalWinner, setFinalWinner] = useState<WinnerInfo | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '', q4: '' });
-  const [contactInfo, setContactInfo] = useState({ fullName: '', email: '', phone: '' });
+  const [contactInfo, setContactInfo] = useState({ fullName: '', phone: '' });
 
   const triggerHaptic = (pattern: number | number[] = 10) => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -50,7 +47,7 @@ export default function ExplorePage() {
     setIsChecking(true);
     triggerHaptic(20);
 
-    const result = await checkParticipantExists(contactInfo.email, contactInfo.phone);
+    const result = await checkParticipantExists(contactInfo.phone);
     setIsChecking(false);
     if (result.success && result.participant) {
       const p = result.participant;
@@ -64,14 +61,12 @@ export default function ExplorePage() {
       const fullProfile = { 
         nickname: p.nickname, 
         winner, 
-        contactInfo: { fullName: p.fullName, email: p.email, phone: p.phone }, 
-        answers: { q1: p.q1, q2: p.q2, q3: p.q3, q4: p.q4 } 
+        contactInfo: { fullName: p.fullName, phone: p.phone }
       };
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('paradiseWinner', JSON.stringify(winner));
         localStorage.setItem('paradiseContact', JSON.stringify(fullProfile.contactInfo));
-        localStorage.setItem('paradiseAnswers', JSON.stringify(fullProfile.answers));
         localStorage.setItem('paradiseNickname', p.nickname);
         localStorage.setItem('paradiseProfile', JSON.stringify(fullProfile));
       }
@@ -80,37 +75,17 @@ export default function ExplorePage() {
       return;
     }
 
-    setShowModal(true);
-  };
-
-  const handleNextQuestion = () => {
-    triggerHaptic(20);
-    if (currentQuestion < 4) {
-      setCurrentQuestion(prev => prev + 1);
-    } else {
-      setShowModal(false);
-      setShowWheel(true);
-    }
+    setShowWheel(true);
   };
 
   const handleWheelComplete = (winner: WinnerInfo) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('paradiseWinner', JSON.stringify(winner));
       localStorage.setItem('paradiseContact', JSON.stringify(contactInfo));
-      localStorage.setItem('paradiseAnswers', JSON.stringify(answers));
     }
     setShowWheel(false);
     setFinalWinner(winner);
   };
-
-  const handlePrevQuestion = () => {
-    triggerHaptic(20);
-    if (currentQuestion > 1) {
-      setCurrentQuestion(prev => prev - 1);
-    }
-  };
-
-
   return (
     <div className={styles.container}>
       {!isFeedView && (
@@ -170,10 +145,6 @@ export default function ExplorePage() {
                   <input type="text" placeholder="NAME" className={styles.input} required value={contactInfo.fullName} onChange={(e) => setContactInfo({ ...contactInfo, fullName: e.target.value })} />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label className={styles.label}>EMAIL</label>
-                  <input type="email" placeholder="EMAIL" className={styles.input} required value={contactInfo.email} onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })} />
-                </div>
-                <div className={styles.inputGroup}>
                   <label className={styles.label}>MOBILE NO:</label>
                   <input type="tel" placeholder="MOBILE NO:" className={styles.input} required value={contactInfo.phone} onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })} />
                 </div>
@@ -226,56 +197,6 @@ export default function ExplorePage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Modal Popup (Independent) */}
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <button
-              className={styles.closeBtn}
-              onClick={() => {
-                triggerHaptic(20);
-                setShowModal(false);
-              }}
-              type="button"
-            >
-              <span className="material-symbols-rounded">close</span>
-            </button>
-
-            <div className={styles.questionsSliderWrapper}>
-              <div
-                className={styles.questionsSlider}
-                style={{ transform: `translateX(-${(currentQuestion - 1) * 100}%)` }}
-              >
-                {[1, 2, 3, 4].map((qNum) => (
-                  <div className={styles.questionSlide} key={qNum}>
-                    <h3 className={styles.questionTitle}>Question {qNum}</h3>
-                    <textarea
-                      className={styles.modalInput}
-                      placeholder={`Your answer for question ${qNum}...`}
-                      value={answers[`q${qNum}` as keyof typeof answers]}
-                      onChange={(e) => setAnswers({ ...answers, [`q${qNum}`]: e.target.value })}
-                      autoFocus={currentQuestion === qNum}
-                      rows={4}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.modalActions}>
-              {currentQuestion > 1 && (
-                <button className={styles.prevBtn} onClick={handlePrevQuestion} type="button">
-                  Previous
-                </button>
-              )}
-              <button className={styles.nextBtn} onClick={handleNextQuestion} type="button">
-                {currentQuestion < 4 ? 'Next' : 'Submit'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

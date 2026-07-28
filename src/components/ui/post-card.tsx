@@ -8,8 +8,31 @@ import {
   MoreHorizontal
 } from "lucide-react";
 import { Facehash } from "facehash";
-import { useState } from "react";
+import React, { useState } from "react";
 import { LikeButton } from "@/components/ui/like-button";
+
+export function formatPostContent(text: string) {
+  const regex = /(https?:\/\/[^\s]+|#[a-zA-Z0-9_]+)/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    if (part.startsWith('http')) {
+      return (
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-[#1DA1F2] hover:underline break-all" onClick={(e) => e.stopPropagation()}>
+          {part}
+        </a>
+      );
+    }
+    if (part.startsWith('#')) {
+      return (
+        <span key={i} style={{ color: '#1DA1F2' }}>
+          {part}
+        </span>
+      );
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
+}
 
 interface PostCardProps {
   author?: {
@@ -112,7 +135,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           {/* Text */}
           {content?.text && (
             <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-200 sm:text-[16px]">
-              {content.text}
+              {formatPostContent(content.text)}
             </p>
           )}
         </div>
@@ -122,15 +145,15 @@ export const PostCard: React.FC<PostCardProps> = ({
           plus its own bottom padding, and an explicit radius. This is
           the block that was bleeding edge-to-edge before. */}
       {content?.image && (
-        <div style={{ padding: "1rem 1.25rem 1.25rem 1.25rem" }}>
+        <div style={{ padding: "1rem 1.25rem 1.25rem 1.25rem" }} className="flex justify-center sm:justify-start">
           <div
-            className="group relative overflow-hidden border border-white/5 bg-white/5"
-            style={{ borderRadius: "1.25rem" }}
+            className="group relative overflow-hidden border border-white/5 bg-white/5 inline-block"
+            style={{ borderRadius: "1.25rem", maxWidth: "100%" }}
           >
             <img
               src={content.image}
               alt="Post content"
-              className="w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+              className="h-auto w-auto max-w-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
               style={{ maxHeight: "600px", display: "block" }}
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -151,13 +174,13 @@ export const PostCard: React.FC<PostCardProps> = ({
             liked={liked}
             onClick={handleLike}
             className="group flex items-center gap-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
-            style={{ 
+            style={{
               marginLeft: "-0.75rem",
               paddingLeft: "1.25rem",
               paddingRight: "1.25rem",
               paddingTop: "0.625rem",
               paddingBottom: "0.625rem",
-              color: liked ? themeColor || "#ef4444" : "#a3a3a3" 
+              color: liked ? themeColor || "#ef4444" : "#a3a3a3"
             }}
           >
             <Heart
@@ -166,14 +189,14 @@ export const PostCard: React.FC<PostCardProps> = ({
             />
             {/* Mobile: number only if > 0. Desktop: number or "Like" label */}
             {likesCount > 0 ? (
-              <span 
+              <span
                 className={`text-[13px] font-medium ${liked ? "text-white" : ""}`}
                 style={{ minWidth: "30px", display: "inline-block" }}
               >
                 {likesCount}
               </span>
             ) : (
-              <span 
+              <span
                 className={`hidden text-[13px] font-medium sm:inline ${liked ? "text-white" : ""}`}
                 style={{ minWidth: "30px", display: "inline-block" }}
               >
@@ -189,14 +212,14 @@ export const PostCard: React.FC<PostCardProps> = ({
           >
             <MessageCircle className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110 group-active:scale-95" />
             {(engagement?.comments ?? 0) > 0 ? (
-              <span 
+              <span
                 className="text-[13px] font-medium"
                 style={{ minWidth: "60px", display: "inline-block" }}
               >
                 {engagement!.comments}
               </span>
             ) : (
-              <span 
+              <span
                 className="hidden text-[13px] font-medium sm:inline"
                 style={{ minWidth: "60px", display: "inline-block" }}
               >
@@ -212,14 +235,14 @@ export const PostCard: React.FC<PostCardProps> = ({
           >
             <Send className="h-[18px] w-[18px] transition-transform duration-300 group-hover:-translate-y-[2px] group-hover:translate-x-[2px] group-hover:scale-110 group-active:scale-95" />
             {(engagement?.shares ?? 0) > 0 ? (
-              <span 
+              <span
                 className="text-[13px] font-medium"
                 style={{ minWidth: "40px", display: "inline-block" }}
               >
                 {engagement!.shares}
               </span>
             ) : (
-              <span 
+              <span
                 className="hidden text-[13px] font-medium sm:inline"
                 style={{ minWidth: "40px", display: "inline-block" }}
               >
@@ -232,13 +255,13 @@ export const PostCard: React.FC<PostCardProps> = ({
         <button
           onClick={handleBookmark}
           className="group flex items-center gap-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
-          style={{ 
+          style={{
             marginRight: "-0.75rem",
             paddingLeft: "1.25rem",
             paddingRight: "1.25rem",
             paddingTop: "0.625rem",
             paddingBottom: "0.625rem",
-            color: bookmarked ? themeColor || "#3b82f6" : "#a3a3a3" 
+            color: bookmarked ? themeColor || "#3b82f6" : "#a3a3a3"
           }}
         >
           <Bookmark
@@ -246,7 +269,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               }`}
           />
           {/* Save has no count — hide label on mobile entirely */}
-          <span 
+          <span
             className={`hidden text-[13px] font-medium sm:inline ${bookmarked ? "text-white" : ""}`}
             style={{ minWidth: "40px", display: "inline-block" }}
           >

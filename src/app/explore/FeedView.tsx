@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { PostCard } from '@/components/ui/post-card';
-import { getPosts } from '../actions';
+import { PostCardSkeleton } from '@/components/ui/post-card-skeleton';
+import { getPosts, verifyParticipant } from '../actions';
 import styles from './FeedView.module.css';
 import { Facehash } from 'facehash';
 import type { WinnerInfo } from './SpinWheel';
@@ -39,21 +40,76 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
   const [showProfile, setShowProfile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showDeletedModal, setShowDeletedModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    async function loadPosts() {
+    async function init() {
+      setIsLoading(true);
+      if (nickname) {
+        const verify = await verifyParticipant(nickname);
+        if (verify.success && verify.exists === false) {
+          setShowDeletedModal(true);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const result = await getPosts();
       if (result.success && result.posts) {
         setPosts(result.posts);
       }
+      setIsLoading(false);
     }
-    loadPosts();
-  }, []);
+    init();
+  }, [nickname]);
 
   return (
     <div className={styles.feedContainer}>
+      {/* ── Deleted User Modal Overlay ── */}
+      <AnimatePresence>
+        {showDeletedModal && (
+          <div className={styles.profileOverlayWrapper} style={{ zIndex: 9999 }}>
+            <motion.div
+              className={styles.profileBackdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <motion.div
+              className={styles.profileModal}
+              style={{ textAlign: 'center', padding: '40px 20px' }}
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            >
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px', color: '#ff4444' }}>Session Expired</h2>
+              <p style={{ color: '#ccc', marginBottom: '32px', fontSize: '15px', lineHeight: '1.5' }}>
+                You have been logged out. Please enter your name and mobile number again to continue.
+              </p>
+              <button
+                className={styles.nextBtn}
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.href = '/';
+                }}
+                style={{
+                  background: '#ff4444',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(255,68,68,0.5)',
+                  width: '100%',
+                  marginTop: '0'
+                }}
+              >
+                OK
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className={styles.backgroundBlobs}>
         <div className={styles.blob1} />
         <div className={styles.blob2} />
@@ -101,7 +157,13 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
 
 
         <div className={styles.postsList}>
-          {posts.length === 0 ? (
+          {isLoading ? (
+            <>
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </>
+          ) : posts.length === 0 ? (
             <p style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>No updates yet in Paradise. Stay tuned!</p>
           ) : (
             posts.map((post, index) => (
@@ -319,31 +381,13 @@ export default function FeedView({ nickname, winner, profileData }: FeedViewProp
               <div className={styles.profileSection}>
                 <p className={styles.profileSectionTitle}>Contact</p>
                 <div className={styles.profileInfoGrid}>
-                  <div className={styles.profileInfoItem}>
-                    <span className={styles.profileInfoIcon}>
-                      <span className="material-symbols-rounded">mail</span>
-                    </span>
-                    <span className={styles.profileInfoValue}>{profileData.contactInfo?.email || '—'}</span>
-                  </div>
+
                   <div className={styles.profileInfoItem}>
                     <span className={styles.profileInfoIcon}>
                       <span className="material-symbols-rounded">call</span>
                     </span>
                     <span className={styles.profileInfoValue}>{profileData.contactInfo?.phone || '—'}</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Answers */}
-              <div className={styles.profileSection}>
-                <p className={styles.profileSectionTitle}>Your Answers</p>
-                <div className={styles.profileAnswersGrid}>
-                  {(['q1', 'q2', 'q3', 'q4'] as const).map((key, i) => (
-                    <div key={key} className={styles.profileAnswerCard}>
-                      <span className={styles.profileAnswerNum} style={{ color: winner.colors[0] }}>Q{i + 1}</span>
-                      <p className={styles.profileAnswerText}>{profileData.answers?.[key] || '—'}</p>
-                    </div>
-                  ))}
                 </div>
               </div>
 

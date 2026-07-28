@@ -684,34 +684,7 @@
   word-break: break-all;
 }
 
-/* Answers grid */
-.profileAnswersGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
 
-.profileAnswerCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  padding: 14px 16px;
-}
-
-.profileAnswerNum {
-  font-family: var(--font-bebas), sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.profileAnswerText {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.65);
-  margin: 0;
-  line-height: 1.5;
-}
 
 /* Reset button */
 .resetBtn {
@@ -795,9 +768,6 @@
     padding: 16px 20px 0;
   }
 
-  .profileAnswersGrid {
-    grid-template-columns: 1fr;
-  }
 
   .resetBtn {
     margin: 20px 20px 0;

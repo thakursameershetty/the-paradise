@@ -18,6 +18,7 @@ export default function FacehashSection({ winner, onBack, onEnterFeed }: Facehas
   const [nickname, setNickname] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [view, setView] = useState<'form' | 'feed'>('form');
   const [profileData, setProfileData] = useState<any>(null);
 
@@ -46,8 +47,7 @@ export default function FacehashSection({ winner, onBack, onEnterFeed }: Facehas
         } else {
           // Fallback for older sessions before paradiseProfile was consolidated
           const contactInfo = JSON.parse(localStorage.getItem('paradiseContact') || '{}');
-          const answers = JSON.parse(localStorage.getItem('paradiseAnswers') || '{}');
-          setProfileData({ nickname: savedNickname, winner, contactInfo, answers });
+          setProfileData({ nickname: savedNickname, winner, contactInfo });
         }
 
         setView('feed');
@@ -55,8 +55,13 @@ export default function FacehashSection({ winner, onBack, onEnterFeed }: Facehas
           window.history.replaceState(null, '', '/feed');
         }
       }
+      setIsCheckingSession(false);
     }
   }, []);
+
+  if (isCheckingSession) {
+    return null;
+  }
 
   if (view === 'feed') {
     return <FeedView nickname={nickname} winner={winner} profileData={profileData} />;
@@ -124,19 +129,13 @@ export default function FacehashSection({ winner, onBack, onEnterFeed }: Facehas
             setIsSaving(true);
 
             const contactInfo = JSON.parse(localStorage.getItem('paradiseContact') || '{}');
-            const answers = JSON.parse(localStorage.getItem('paradiseAnswers') || '{}');
 
             const result = await saveParticipant({
               nickname,
               animal: winner.animal,
               colors: winner.colors,
               fullName: contactInfo.fullName || '',
-              email: contactInfo.email || '',
-              phone: contactInfo.phone || '',
-              q1: answers.q1 || '',
-              q2: answers.q2 || '',
-              q3: answers.q3 || '',
-              q4: answers.q4 || ''
+              phone: contactInfo.phone || ''
             });
 
             if (!result.success) {
@@ -146,7 +145,7 @@ export default function FacehashSection({ winner, onBack, onEnterFeed }: Facehas
               triggerHaptic([30, 50, 30, 50, 50]);
               setIsSaving(false);
               localStorage.setItem('paradiseNickname', nickname);
-              const fullProfile = { nickname, winner, contactInfo, answers };
+              const fullProfile = { nickname, winner, contactInfo };
               localStorage.setItem('paradiseProfile', JSON.stringify(fullProfile));
               setProfileData(fullProfile);
               window.history.pushState(null, '', '/feed');

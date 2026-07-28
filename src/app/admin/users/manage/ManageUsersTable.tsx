@@ -11,12 +11,7 @@ type Participant = {
   animal: string;
   colors: string[];
   fullName: string;
-  email: string;
   phone: string;
-  q1: string;
-  q2: string;
-  q3: string;
-  q4: string;
   createdAt: Date;
 };
 
@@ -46,7 +41,6 @@ export default function ManageUsersTable({ initialParticipants }: { initialParti
     return (
       p.fullName.toLowerCase().includes(q) ||
       p.nickname.toLowerCase().includes(q) ||
-      p.email.toLowerCase().includes(q) ||
       p.phone.includes(q) ||
       p.animal.toLowerCase().includes(q)
     );
@@ -190,7 +184,6 @@ export default function ManageUsersTable({ initialParticipants }: { initialParti
                 <td className={`${styles.monoText} ${styles.textHighlight}`}>{item.nickname}</td>
                 <td>
                   <div className={styles.detailsList}>
-                    <span className={styles.textHighlight}>{item.email}</span>
                     <span className={styles.textMuted}>{item.phone}</span>
                   </div>
                 </td>

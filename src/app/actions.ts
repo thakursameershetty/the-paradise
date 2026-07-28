@@ -10,23 +10,13 @@ export async function saveParticipant({
   animal,
   colors,
   fullName,
-  email,
-  phone,
-  q1,
-  q2,
-  q3,
-  q4
+  phone
 }: {
   nickname: string;
   animal: string;
   colors: string[];
   fullName: string;
-  email: string;
   phone: string;
-  q1: string;
-  q2: string;
-  q3: string;
-  q4: string;
 }) {
   try {
     const participant = await prisma.participant.create({
@@ -35,12 +25,7 @@ export async function saveParticipant({
         animal,
         colors,
         fullName,
-        email,
-        phone,
-        q1,
-        q2,
-        q3,
-        q4
+        phone
       },
     });
 
@@ -70,20 +55,27 @@ export async function getPosts() {
   }
 }
 
-export async function checkParticipantExists(email: string, phone: string) {
+export async function checkParticipantExists(phone: string) {
   try {
     const participant = await prisma.participant.findFirst({
-      where: {
-        OR: [
-          { email: email },
-          { phone: phone }
-        ]
-      }
+      where: { phone: phone }
     });
     return { success: true, participant };
   } catch (error: any) {
     console.error('Error checking participant:', error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function verifyParticipant(nickname: string) {
+  try {
+    const participant = await prisma.participant.findUnique({
+      where: { nickname },
+    });
+    return { success: true, exists: !!participant };
+  } catch (error: any) {
+    console.error('Error verifying participant:', error);
+    return { success: false, error: 'Database error' };
   }
 }
 
